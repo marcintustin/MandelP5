@@ -1,3 +1,5 @@
+"use strict";
+
 var max_x
 var max_y
 
@@ -22,8 +24,8 @@ var startRect = null;
 var endRect = null;
 
 function pixelToComplex(x, y) {
-  imag = (y / max_y) * actual_height_range + actual_height_offset;
-  real = (x / max_x) * actual_width_range + actual_width_offset;
+  var imag = (y / max_y) * actual_height_range + actual_height_offset;
+  var real = (x / max_x) * actual_width_range + actual_width_offset;
   return math.complex(real, imag)
 }
 
@@ -60,10 +62,34 @@ function mousePressed() {
 
 function mouseDragged() {
   endRect = createVector(mouseX, mouseY)
+  var diff = p5.Vector.sub(endRect,startRect);
+  var width = diff.x
+  var height = diff.y
+  // normalise whichever of width or height is less
+  if (width <= height) {
+    width = height * aspectRatio
+  } else {
+    height = width / aspectRatio
+  }
+  endRect = p5.Vector.add(startRect, createVector(width, height))
 }
 
 function mouseReleased() {
-  // TODO: implement zooming
+  // adjust actual_{height,width}_offset to top left of rectangle (startRect)
+  var newTopCorner = pixelToComplex(startRect.x, startRect.y)
+  // adjust actual_{height,width}_range to height/width of rectangle (diff)
+  var newBottomCorner = pixelToComplex(endRect.x, endRect.y)
+  var newDimensions = newBottomCorner.sub(newTopCorner)
+
+  actual_width_offset = newTopCorner.re
+  actual_height_offset = newTopCorner.im
+
+  actual_width_range = newDimensions.re
+  actual_height_range = newDimensions.im
+
+  // TODO: Increase number of iterations to get more detail
+  
+  windowResized()
 }
 
 function nonDivergentMandelbrotIteration(c) {
@@ -98,14 +124,6 @@ function draw() {
   }
   if(startRect && endRect) {
     var diff = p5.Vector.sub(endRect,startRect);
-    var width = diff.x
-    var height = diff.y
-    // normalise whichever of width or height is less
-    if (width <= height) {
-      width = height * aspectRatio
-    } else {
-      height = width / aspectRatio
-    }
-    rect(startRect.x, startRect.y, width, height)
+    rect(startRect.x, startRect.y, diff.x, diff.y)
   }
 }
