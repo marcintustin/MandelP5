@@ -1,5 +1,6 @@
 //var x_offset = 300
 //var y_offset = 200
+// Defaults; should be set in setup
 var max_x = 1200
 var max_y = 800
 
@@ -10,7 +11,11 @@ var actual_width_range = 3
 var actual_width_offset = -2;
 
 var divergence_threshold = 4
-var max_iterations = 100;
+// Decent balance between "smoothness" and resolution on the set
+var max_iterations = 25;
+
+var fromColor;
+var toColor;
 
 function pixelToComplex(x, y) {
   imag = (y / max_y) * actual_height_range + actual_height_offset;
@@ -19,11 +24,22 @@ function pixelToComplex(x, y) {
 }
 
 function setup() {
+  colorMode(HSB);
+  max_x = windowWidth
+  max_y = windowHeight
+  fromColor = color(218, 165, 32);
+  toColor = color(20, 100, 255);
   createCanvas(max_x, max_y);
   // normally draw is called continuously
   // but this sucks for this case, because (a) our draw is expensive
   // (b) it does the same thing every time
   noLoop();
+}
+
+function windowResized() {
+  max_x = windowWidth
+  max_y = windowHeight
+  resizeCanvas(max_x, max_y);
 }
 
 function nonDivergentMandelbrotIteration(c) {
@@ -39,7 +55,7 @@ function nonDivergentMandelbrotIteration(c) {
   return num_iterations;
 }
 
-function draw() {
+function drawMandelbrot() {
   background(51);
   stroke(150);
   point(10, 10);
@@ -49,8 +65,12 @@ function draw() {
       var pxAsComplex = pixelToComplex(x, y);
       //var inMandelbrot = pxAsComplex.abs() < 2; 
       var mandelVal = nonDivergentMandelbrotIteration(pxAsComplex);
-      stroke(255 * (mandelVal / max_iterations))
+      stroke(lerpColor(fromColor, toColor, mandelVal / max_iterations));
       point(x,y)
     }
   }
+}
+
+function draw() {
+  drawMandelbrot()
 }
