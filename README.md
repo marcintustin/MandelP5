@@ -25,13 +25,13 @@ What it's really for is to demonstrate a really simple way to make websites, and
 
 8. Start drawing rectangles on the screen:
 
-8.1 Use the `mousePressed` (for when the user first presses their mouse or screen) and `mouseDragged` (to update the current coordinate of the other corner of the rectangle) event handlers to capture the co-ordinates chosen to zoom.
+   8.1. Use the `mousePressed` (for when the user first presses their mouse or screen) and `mouseDragged` (to update the current coordinate of the other corner of the rectangle) event handlers to capture the co-ordinates chosen to zoom.
 
-8.2 For this to actually work, we need to reinstate the event loop, and [delete noLoop](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367L36).
+   8.2. For this to actually work, we need to reinstate the event loop, and [delete noLoop](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367L36).
 
-8.3 But, we still don't want to have to recalculate the whole set on every frame. So, we [draw the image to a buffer](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R53), and [draw the buffer to the canvas on each frame](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R96). It is worth mentioning that another not-super-documented feature is the [`pixelDensity`](https://p5js.org/reference/#/p5/pixelDensity) of canvases is inherited from the top level; and if it is larger than 1, the graphics buffer will scale, and you will see less than the whole image on the canvas. For that reason, we [set the `pixelDensity` to 1](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R31).
+   8.3. But, we still don't want to have to recalculate the whole set on every frame. So, we [draw the image to a buffer](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R53), and [draw the buffer to the canvas on each frame](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R96). It is worth mentioning that another not-super-documented feature is the [`pixelDensity`](https://p5js.org/reference/#/p5/pixelDensity) of canvases is inherited from the top level; and if it is larger than 1, the graphics buffer will scale, and you will see less than the whole image on the canvas. For that reason, we [set the `pixelDensity` to 1](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R31).
 
-8.4 Because the point of these rectangles is to define the zoom area, it makes sense to keep them the same aspect ratio as the canvas. Whichever dimension of the "real" rectangle is shorter is [scaled to match the aspect ratio of the canvas](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R104).
+   8.4. Because the point of these rectangles is to define the zoom area, it makes sense to keep them the same aspect ratio as the canvas. Whichever dimension of the "real" rectangle is shorter is [scaled to match the aspect ratio of the canvas](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R104).
 
 9. It would be nice if the image scaled with the size of the window. Fortunately, p5 provides a [`windowResized`](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R48) handler, and a method to resize the canvas. We also [create a new buffer](https://github.com/marcintustin/MandelP5/commit/7908d7df6fe90bc044b8aa3dc72ea06704bf675d#diff-9f2094443505273ff51ea1d1702e4367R52) to draw the set on, that matches the size of the canvas.
 
@@ -43,9 +43,9 @@ What it's really for is to demonstrate a really simple way to make websites, and
 
 In no particular order (because I'm _agile_):
 
-[ ] Hardware acceleration with [gpu.js](http://gpu.rocks/)
-[ ] Adaptive iteration depth, so when you zoom, you get more detail
-[ ] Rectangle goes away when you zoom
-[ ] Make drawing a rectangle not also drag on mobile
-[ ] Make it play nicely with mobile web browsers that remove/add chrome on the top and bottom of the display
-[ ] Interactive palette control
+- [ ] Hardware acceleration with [gpu.js](http://gpu.rocks/)
+- [ ] Adaptive iteration depth, so when you zoom, you get more detail
+- [ ] Rectangle goes away when you zoom
+- [ ] Make drawing a rectangle not also drag on mobile
+- [ ] Make it play nicely with mobile web browsers that remove/add chrome on the top and bottom of the display
+- [ ] Interactive palette control
