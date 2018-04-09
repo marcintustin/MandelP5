@@ -4,7 +4,8 @@
 
 Functionally, this is a live demo of making a mandelbrot set viewer in 129 lines of JS (for the absolute minimum), and basic html and css boilerplate.
 
-What it's really for is to demonstrate a really simple way to make websites, and learn to make websites, that is compatible with progressive enhancement (as opposed to the "everything is js" approach). It actually is all JS right now, because the only bit that's done is the fully interactive bit.
+What it's really for is as a quick tutorial on p5.js. I believe that p5.js a really simple way to make dynamic websites, compatible with maintaining a core experience that is js free. This project doesn't have those non-canvas parts yet, but those are planned. What I certainly can say is that p5.js is the web framework that I have picked up the most easily, and with the least boilerplate. 
+
 
 ## How was it made
 
