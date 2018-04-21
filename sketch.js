@@ -2,6 +2,7 @@
 
 var max_x
 var max_y
+var max_diag
 
 // used for rectangle normalisation, needed for zooming
 var aspectRatio;
@@ -50,6 +51,7 @@ function setup() {
 function windowResized() {
   max_x = windowWidth
   max_y = windowHeight
+  max_diag = math.sqrt(math.pow(windowHeight, 2) + math.pow(windowWidth, 2))
   resizeCanvas(max_x, max_y);
   mbBuffer = createGraphics(max_x, max_y)
   drawMandelbrot(mbBuffer)
@@ -65,12 +67,10 @@ function mouseDragged() {
   var diff = p5.Vector.sub(endRect,startRect);
   var width = diff.x
   var height = diff.y
-  // normalise whichever of width or height is less
-  if (width <= height) {
-    width = height * aspectRatio
-  } else {
-    height = width / aspectRatio
-  }
+  var scaleFactor = diff.mag() / max_diag;
+  // normalise to aspect ratio of screen
+  width   = max_x * scaleFactor * math.sign(width)
+  height  = max_y * scaleFactor * math.sign(height)
   endRect = p5.Vector.add(startRect, createVector(width, height))
 }
 
@@ -88,7 +88,7 @@ function mouseReleased() {
   actual_height_range = newDimensions.im
 
   // TODO: Increase number of iterations to get more detail
-  
+  startRect = null; // don't draw a rectangle
   windowResized()
 }
 
