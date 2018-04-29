@@ -127,3 +127,12 @@ function draw() {
     rect(startRect.x, startRect.y, diff.x, diff.y)
   }
 }
+
+try {
+  module.exports = {
+    nonDivergentMandelbrotIteration,
+    drawMandelbrot
+  };
+} catch (error){
+  console.log(error)
+}
