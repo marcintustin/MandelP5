@@ -53,14 +53,47 @@ function setup() {
   noFill() // also for rectangle
 }
 
+var gpu = new GPU();
+
 function windowResized() {
   max_x = windowWidth
   max_y = windowHeight
   max_diag = math.sqrt(math.pow(windowHeight, 2) + math.pow(windowWidth, 2))
   resizeCanvas(max_x, max_y);
   mbBuffer = createGraphics(max_x, max_y)
-  drawMandelbrot(mbBuffer)
   aspectRatio = max_x / max_y;
+
+  var mandelVals = gpu.createKernel(
+    function mvals(realParts, imagParts){
+      // I am completely confused as to why y and x have to be transposed here
+      // something to do with transfer to gpu, I think
+      var value_real = realParts[this.thread.y][this.thread.x];
+      var value_imag = imagParts[this.thread.y][this.thread.x];
+      var c_real = value_real;
+      var c_imag = value_imag;
+      var num_iterations = 0;
+      var abs_val_squared = 0; // not really but let's not repeat ourselves
+      while (abs_val_squared <= this.constants.divergence_threshold_squared &&
+             num_iterations <= this.constants.max_iterations) {
+        num_iterations += 1;
+        var value_real_new = (value_real * value_real) - (value_imag * value_imag) + c_real
+        var value_imag_new = ((value_real * value_imag) * 2) + c_imag;
+        value_real = value_real_new;
+        value_imag = value_imag_new;
+        abs_val_squared = (value_real * value_real) + (value_imag * value_imag)
+      }
+      // scaled escape value
+      return num_iterations/this.constants.max_iterations;
+    },
+    {
+      constants: {
+        max_iterations: max_iterations,
+        divergence_threshold_squared: divergence_threshold * divergence_threshold
+      }
+    }).setOutput([max_y, max_x]);
+
+  drawMandelbrot(mbBuffer, mandelVals)
+
 }
 
 function mousePressed() {
@@ -133,12 +166,22 @@ function nonDivergentMandelbrotIteration(c) {
   return num_iterations;
 }
 
-function drawMandelbrot(g) {
+function drawMandelbrot(g, mandelVals) {
+
+  var realParts = Array.from({ length: max_x+1 }, function() { return Array.from({ length:  max_y+1 })});
+  var imagParts = Array.from({ length: max_x+1 }, function() { return Array.from({ length:  max_y+1 })});
   for (var x = 0; x < max_x; x++) {
     for (var y = 0; y < max_y; y++) {
       var pxAsComplex = pixelToComplex(x, y, viewBounds);
-      var mandelVal = nonDivergentMandelbrotIteration(pxAsComplex);
-      var trueColor = lerpColor(fromColor, toColor, mandelVal / max_iterations);
+      realParts[x][y] = pxAsComplex.re
+      imagParts[x][y] = pxAsComplex.im      
+    }
+  }
+  //var mandelVal = nonDivergentMandelbrotIteration(pxAsComplex);
+  var computedMandelVals =  mandelVals(realParts, imagParts);
+  for (var x = 0; x < max_x; x++) {
+    for (var y = 0; y < max_y; y++) {
+      var trueColor = lerpColor(fromColor, toColor, computedMandelVals[x][y]);
       g.stroke(trueColor);
       g.point(x,y)
     }

@@ -46,7 +46,7 @@ In no particular order (because I'm _agile_):
 
 - [ ] Hardware acceleration with [gpu.js](http://gpu.rocks/)
 - [ ] Adaptive iteration depth, so when you zoom, you get more detail
-- [ ] Rectangle goes away when you zoom
+- [x] Rectangle goes away when you zoom
 - [ ] Make drawing a rectangle not also drag on mobile
 - [ ] Make it play nicely with mobile web browsers that remove/add chrome on the top and bottom of the display
 - [ ] Interactive palette control
