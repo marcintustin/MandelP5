@@ -7,13 +7,15 @@ var max_diag
 // used for rectangle normalisation, needed for zooming
 var aspectRatio;
 
-var actual_height_range = 2
-var actual_height_offset = -1
+var viewBounds = {
+  actual_height_range: 2,
+  actual_height_offset: -1,
 
-var actual_width_range = 3
-var actual_width_offset = -2;
+  actual_width_range: 3,
+  actual_width_offset: -2
+};
 
-var divergence_threshold = 4
+var divergence_threshold = 2
 // Decent balance between "smoothness" and resolution on the set
 var max_iterations = 25;
 
@@ -24,9 +26,9 @@ var mbBuffer;
 var startRect = null;
 var endRect = null;
 
-function pixelToComplex(x, y) {
-  var imag = (y / max_y) * actual_height_range + actual_height_offset;
-  var real = (x / max_x) * actual_width_range + actual_width_offset;
+function pixelToComplex(x, y, bounds) {
+  var imag = (y / max_y) * bounds.actual_height_range + bounds.actual_height_offset;
+  var real = (x / max_x) * bounds.actual_width_range + bounds.actual_width_offset;
   return math.complex(real, imag)
 }
 
@@ -34,12 +36,15 @@ function setup() {
   pixelDensity(1);
   background(255)
   colorMode(HSB);
-  blendMode(ADD);
+  blendMode(REPLACE);
   strokeWeight(0.1)
   
   fromColor = color('hsba(160, 100%, 50%, 1)');
   toColor = color('hsba(20, 100%, 100%, 1)');
 
+  //fromColor = color(25, 100, 50);
+  //toColor = color(332, 100, 63);
+  
   // needed to set up globals
   windowResized();
   
@@ -63,8 +68,8 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-  endRect = createVector(mouseX, mouseY)
-  var diff = p5.Vector.sub(endRect,startRect);
+  var dragEndRect = createVector(mouseX, mouseY)
+  var diff = p5.Vector.sub(dragEndRect,startRect);
   var width = diff.x
   var height = diff.y
   var scaleFactor = diff.mag() / max_diag;
@@ -75,20 +80,43 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
+
+  // Refuse to do anything if bounds have not been chosen
+  if(! (startRect && endRect)) {
+    return;
+  }
+  // figure out visual limits of rectangle so that we can find the actual top left and bottom right
+  // need to pass math.subtract to get numerical sort
+  var xCoords = [startRect.x, endRect.x].sort(math.subtract)
+  var yCoords = [startRect.y, endRect.y].sort(math.subtract)
+
+  // screen co-ordinates are origin in top left
+  var topLeft = createVector(xCoords[0], yCoords[0])
+  var bottomRight = createVector(xCoords[1], yCoords[1])
   // adjust actual_{height,width}_offset to top left of rectangle (startRect)
-  var newTopCorner = pixelToComplex(startRect.x, startRect.y)
+  var newTopCorner = pixelToComplex(topLeft.x, topLeft.y, viewBounds)
   // adjust actual_{height,width}_range to height/width of rectangle (diff)
-  var newBottomCorner = pixelToComplex(endRect.x, endRect.y)
+  var newBottomCorner = pixelToComplex(bottomRight.x, bottomRight.y, viewBounds)
   var newDimensions = newBottomCorner.sub(newTopCorner)
+  var oldViewBounds = viewBounds
+  viewBounds = {
+    actual_width_offset: newTopCorner.re,
+    actual_height_offset: newTopCorner.im,
 
-  actual_width_offset = newTopCorner.re
-  actual_height_offset = newTopCorner.im
+    actual_width_range: newDimensions.re,
+    actual_height_range: newDimensions.im
+  }
 
-  actual_width_range = newDimensions.re
-  actual_height_range = newDimensions.im
+  console.assert(viewBounds.actual_height_range > 0)
+  console.assert(viewBounds.actual_width_range > 0)
 
+  //console.log("Rectangle bounds: ", startRect, endRect)
+  //console.log("Sorted co-ords: ", xCoords, yCoords)
+  //console.log("Old and new view bounds", oldViewBounds, viewBounds);
+  
   // TODO: Increase number of iterations to get more detail
   startRect = null; // don't draw a rectangle
+  endRect = null;
   windowResized()
 }
 
@@ -108,7 +136,7 @@ function nonDivergentMandelbrotIteration(c) {
 function drawMandelbrot(g) {
   for (var x = 0; x < max_x; x++) {
     for (var y = 0; y < max_y; y++) {
-      var pxAsComplex = pixelToComplex(x, y);
+      var pxAsComplex = pixelToComplex(x, y, viewBounds);
       var mandelVal = nonDivergentMandelbrotIteration(pxAsComplex);
       var trueColor = lerpColor(fromColor, toColor, mandelVal / max_iterations);
       g.stroke(trueColor);
@@ -128,6 +156,7 @@ function draw() {
   }
 }
 
+/* Catch exception if we're in a browser */
 try {
   module.exports = {
     nonDivergentMandelbrotIteration,
