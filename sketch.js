@@ -41,9 +41,6 @@ function setup() {
   
   fromColor = color('hsba(160, 100%, 50%, 1)');
   toColor = color('hsba(20, 100%, 100%, 1)');
-
-  //fromColor = color(25, 100, 50);
-  //toColor = color(332, 100, 63);
   
   // needed to set up globals
   windowResized();
@@ -59,6 +56,7 @@ function windowResized() {
   max_x = windowWidth
   max_y = windowHeight
   max_diag = math.sqrt(math.pow(windowHeight, 2) + math.pow(windowWidth, 2))
+
   resizeCanvas(max_x, max_y);
   mbBuffer = createGraphics(max_x, max_y)
   aspectRatio = max_x / max_y;
@@ -168,6 +166,9 @@ function nonDivergentMandelbrotIteration(c) {
 
 function drawMandelbrot(g, mandelVals) {
 
+  // TODO: Don't visit every point in the plane
+  // We could just compute the values for every x and every y separately, and
+  // read off the x and y for each point
   var realParts = Array.from({ length: max_x+1 }, function() { return Array.from({ length:  max_y+1 })});
   var imagParts = Array.from({ length: max_x+1 }, function() { return Array.from({ length:  max_y+1 })});
   for (var x = 0; x < max_x; x++) {
