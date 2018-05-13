@@ -26,6 +26,18 @@ var mbBuffer;
 var startRect = null;
 var endRect = null;
 
+function setFromColor(e) {
+  fromColor = color(e.srcElement.value);
+}
+
+function setToColor(e) {
+  toColor = color(e.srcElement.value);
+}
+
+function mapCoordinate(coord, maxCoord, coordRange, coordOffset) {
+  
+}
+
 function pixelToComplex(x, y, bounds) {
   var imag = (y / max_y) * bounds.actual_height_range + bounds.actual_height_offset;
   var real = (x / max_x) * bounds.actual_width_range + bounds.actual_width_offset;
@@ -38,9 +50,14 @@ function setup() {
   colorMode(HSB);
   blendMode(REPLACE);
   strokeWeight(0.1)
+
+  select('#fromColor').changed(setFromColor)
+  select('#toColor').changed(setToColor)
+  select('#redraw').mouseClicked(windowResized)
   
   fromColor = color('hsba(160, 100%, 50%, 1)');
   toColor = color('hsba(20, 100%, 100%, 1)');
+
   
   // needed to set up globals
   windowResized();
@@ -48,6 +65,8 @@ function setup() {
   createCanvas(max_x, max_y);
   stroke(255) // for rectangle
   noFill() // also for rectangle
+
+  
 }
 
 var gpu = new GPU();
@@ -91,11 +110,13 @@ function windowResized() {
     }).setOutput([max_y, max_x]);
 
   drawMandelbrot(mbBuffer, mandelVals)
-
+  startRect = undefined
+  endRect = undefined
 }
 
 function mousePressed() {
   startRect = createVector(mouseX, mouseY)
+  return false;
 }
 
 function mouseDragged() {
@@ -108,6 +129,7 @@ function mouseDragged() {
   width   = max_x * scaleFactor * math.sign(width)
   height  = max_y * scaleFactor * math.sign(height)
   endRect = p5.Vector.add(startRect, createVector(width, height))
+  return false;
 }
 
 function mouseReleased() {
@@ -149,6 +171,7 @@ function mouseReleased() {
   startRect = null; // don't draw a rectangle
   endRect = null;
   windowResized()
+  return false;
 }
 
 function nonDivergentMandelbrotIteration(c) {

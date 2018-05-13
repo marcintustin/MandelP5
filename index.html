@@ -2,8 +2,7 @@
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.dom.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.sound.min.js"></script>
-      <script
+    <script
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/4.0.0/math.min.js"
   integrity="sha256-SXLRPQMQE3pP06076EMmcA5x6Qv5Wu0rfyH51xcMd8c="
 crossorigin="anonymous"></script>
@@ -11,7 +10,14 @@ crossorigin="anonymous"></script>
   src="https://cdnjs.cloudflare.com/ajax/libs/gpu.js/1.2.0/gpu.js"></script>
     <link rel="stylesheet" type="text/css" href="main.css">
   </head>
-  <body>
+<body>
+<form id="colorChooser"><span>Shade colors</span>
+<label for="fromColor"> from Color:</label>
+<input type="color" value="#11844E" id="fromColor">
+<label for="toColor"> to Color:</label>
+<input type="color" value="#FC561F" id="toColor">
+<button id="redraw" type="button">Redraw</button>
+</form>
     <script src="sketch.js"></script>
   </body>
 </html>
